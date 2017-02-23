@@ -44,7 +44,7 @@ class liquibase::install inherits liquibase {
   include staging
 
   staging::file { "liquibase-${version}-bin.tar.gz":
-    environment => $environment,
+#    environment => $environment,
     source      => "https://github.com/liquibase/liquibase/releases/download/liquibase-parent-${version}/liquibase-${version}-bin.tar.gz",
   }
 
