@@ -12,7 +12,6 @@
 # [jtds_version] the version of the jtds driver to use, by default 1.3.1
 # [mysql_version] the version of the mysql driver to use, by default 5.1.34
 # [sqlite_version] the version of the sqlite driver to use, by default 3.7.8
-# [environment] the proxy configuration if needed
 #
 #
 #
@@ -20,7 +19,6 @@
 #
 #class { 'liquibase':
 # version => '3.4.0',
-# environment => ["http_proxy=http://proxy_user:proxy_passwd@proxy_server:proxy_port", "https_proxy=https://proxy_user:proxy_passwd@proxy_server:proxy_port"],
 #}
 #
 #class { 'liquibase':
@@ -44,8 +42,13 @@ class liquibase::install inherits liquibase {
   include staging
 
   staging::file { "liquibase-${version}-bin.tar.gz":
-    environment => $environment,
     source      => "https://github.com/liquibase/liquibase/releases/download/liquibase-parent-${version}/liquibase-${version}-bin.tar.gz",
+  }
+
+  if (!defined(File['/opt/apps'])) {
+    file { '/opt/apps':
+      ensure  => directory,
+    }
   }
 
   file { '/opt/apps/liquibase/':
@@ -53,7 +56,7 @@ class liquibase::install inherits liquibase {
     recurse => true,
     purge   => true,
     force   => true,
-    require => Staging::File["liquibase-${version}-bin.tar.gz"],
+    require => [Staging::File["liquibase-${version}-bin.tar.gz"], File['/opt/apps']],
   }
 
   file { "/opt/apps/liquibase/liquibase-${version}":
@@ -89,7 +92,6 @@ class liquibase::install inherits liquibase {
   # Copie des drivers
   # PostgreSQL
   staging::file { "postgresql-${postgresql_version}.jar":
-    environment => $environment,
     source      => "http://central.maven.org/maven2/org/postgresql/postgresql/${postgresql_version}/postgresql-${postgresql_version}.jar",
     require     => Staging::Extract["liquibase-${version}-bin.tar.gz"],
   }
@@ -103,7 +105,6 @@ class liquibase::install inherits liquibase {
 
   # Derby
   staging::file { "derbyclient-${derby_version}.jar":
-    environment => $environment,
     source      => "http://central.maven.org/maven2/org/apache/derby/derbyclient/${derby_version}/derbyclient-${derby_version}.jar",
     require     => Staging::Extract["liquibase-${version}-bin.tar.gz"],
   }
@@ -117,7 +118,6 @@ class liquibase::install inherits liquibase {
 
   # H2
   staging::file { "h2-${h2_version}.jar":
-    environment => $environment,
     source      => "http://central.maven.org/maven2/com/h2database/h2/${h2_version}/h2-${h2_version}.jar",
     require     => Staging::Extract["liquibase-${version}-bin.tar.gz"],
   }
@@ -131,7 +131,6 @@ class liquibase::install inherits liquibase {
 
   # Hsqldb
   staging::file { "hsqldb-${hsqldb_version}.jar":
-    environment => $environment,
     source      => "http://central.maven.org/maven2/org/hsqldb/hsqldb/${hsqldb_version}/hsqldb-${hsqldb_version}.jar",
     require     => Staging::Extract["liquibase-${version}-bin.tar.gz"],
   }
@@ -145,7 +144,6 @@ class liquibase::install inherits liquibase {
 
   # Jtds
   staging::file { "jtds-${jtds_version}.jar":
-    environment => $environment,
     source      => "http://central.maven.org/maven2/net/sourceforge/jtds/jtds/${jtds_version}/jtds-${jtds_version}.jar",
     require     => Staging::Extract["liquibase-${version}-bin.tar.gz"],
   }
@@ -159,7 +157,6 @@ class liquibase::install inherits liquibase {
 
   # MySql
   staging::file { "mysql-connector-java-${mysql_version}.jar":
-    environment => $environment,
     source      => "http://central.maven.org/maven2/mysql/mysql-connector-java/${mysql_version}/mysql-connector-java-${mysql_version}.jar",
     require     => Staging::Extract["liquibase-${version}-bin.tar.gz"],
   }
@@ -173,7 +170,6 @@ class liquibase::install inherits liquibase {
 
   # Jt400
   staging::file { "jt400-${jt400_version}.jar":
-    environment => $environment,
     source      => "http://central.maven.org/maven2/net/sf/jt400/jt400/${jt400_version}/jt400-${jt400_version}.jar",
     require     => Staging::Extract["liquibase-${version}-bin.tar.gz"],
   }
@@ -187,7 +183,6 @@ class liquibase::install inherits liquibase {
 
   # MariaDB
   staging::file { "mariadb-${mariadb_version}.jar":
-    environment => $environment,
     source      => "http://central.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/${mariadb_version}/mariadb-java-client-${mariadb_version}.jar",
     require     => Staging::Extract["liquibase-${version}-bin.tar.gz"],
   }
