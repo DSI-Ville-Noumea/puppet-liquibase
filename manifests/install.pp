@@ -45,12 +45,18 @@ class liquibase::install inherits liquibase {
     source      => "https://github.com/liquibase/liquibase/releases/download/liquibase-parent-${version}/liquibase-${version}-bin.tar.gz",
   }
 
+  if (!defined(File['/opt/apps'])) {
+    file { '/opt/apps':
+      ensure  => directory,
+    }
+  }
+
   file { '/opt/apps/liquibase/':
     ensure  => directory,
     recurse => true,
     purge   => true,
     force   => true,
-    require => Staging::File["liquibase-${version}-bin.tar.gz"],
+    require => [Staging::File["liquibase-${version}-bin.tar.gz"], File['/opt/apps']],
   }
 
   file { "/opt/apps/liquibase/liquibase-${version}":
